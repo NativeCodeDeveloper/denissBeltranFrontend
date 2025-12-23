@@ -1,5 +1,5 @@
 "use client";
-import {useMemo, useState} from "react";
+import {useMemo, useState, useEffect} from "react";
 import {Michroma} from "next/font/google";
 import {useAgenda} from "@/ContextosApp/AgendaContext";
 import Link from "next/link";
@@ -43,23 +43,36 @@ export default function CalendarioMensualHoras() {
         return dias;
     };
 
-    const horas = useMemo(() => {
-        // Horas disponibles desde 09:00 hasta 19:00 (rangos de 60 min, inicio cada 15 min)
-        const arr = [];
-        for (let h = 9; h <= 18; h++) { // 18:45 + 60 = 19:45 (tope visual 19)
-            for (let m = 0; m < 60; m += 15) {
-                arr.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-            }
-        }
-        return arr;
-    }, []);
+    // Genera la agenda con bloques: 45 min atención + 10 min descanso desde 09:00 hasta 21:00.
+    // Cada entry es {type: 'attention'|'break', start: 'HH:MM', end: 'HH:MM'}
+    const agenda = useMemo(() => {
+        const entries = [];
+        const startMinutes = 9 * 60; // 09:00
+        const endMinutes = 21 * 60; // 21:00
+        let cursor = startMinutes;
 
-    const buildDateTime = (fecha, hora) => {
-        const [h, m] = hora.split(":").map(Number);
-        const d = new Date(fecha);
-        d.setHours(h, m, 0, 0);
-        return d;
-    };
+        const minutesToHHMM = (min) => {
+            const hh = Math.floor(min / 60);
+            const mm = min % 60;
+            return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+        };
+
+        while (cursor + 45 <= endMinutes) {
+            const attStart = cursor;
+            const attEnd = cursor + 45;
+            entries.push({type: 'attention', start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd)});
+
+            const breakStart = attEnd;
+            const breakEnd = Math.min(attEnd + 10, endMinutes);
+            if (breakStart < endMinutes) {
+                entries.push({type: 'break', start: minutesToHHMM(breakStart), end: minutesToHHMM(breakEnd)});
+            }
+
+            cursor = attEnd + 10;
+        }
+
+        return entries;
+    }, []);
 
     const addMinutesToHHMM = (hhmm, minutesToAdd) => {
         const [hh, mm] = hhmm.split(":").map(Number);
@@ -107,11 +120,17 @@ export default function CalendarioMensualHoras() {
     const dias = generarDiasMes();
     const API = process.env.NEXT_PUBLIC_API_URL;
 
+    const [blockedHours, setBlockedHours] = useState(new Set());
+    const [checkingBlocked, setCheckingBlocked] = useState(false);
 
-    async function validarFechaDisponible(fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion) {
+    // Comprueba si un slot está disponible. Devuelve true si está disponible, false si está ocupado.
+    // showToast: opcional, si true mostrará mensajes de error al usuario.
+    async function validarFechaDisponible(fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, showToast = false) {
         try {
-            if (!fechaInicio || !fechaFinalizacion || !horaInicio || !fechaFinalizacion || !horaFinalizacion) {
-                return toast.error('Debe seleccionar una fecha para validar disponibilidad')
+            // validación mínima de parámetros
+            if (!fechaInicio || !fechaFinalizacion || !horaInicio || !horaFinalizacion) {
+                if (showToast) toast.error('Debe seleccionar fecha y hora para validar disponibilidad');
+                return false;
             }
 
             const res = await fetch(`${API}/reservaPacientes/validar`, {
@@ -124,22 +143,69 @@ export default function CalendarioMensualHoras() {
             });
 
             if (!res.ok) {
-                return toast.error('No hay respuesta del servidor')
-            } else {
-
-                const respuestaBackend = await res.json();
-
-                if (respuestaBackend.message === true) {
-
-                } else {
-
-                }
-
+                if (showToast) toast.error('No hay respuesta del servidor');
+                return false;
             }
+
+            const respuestaBackend = await res.json();
+
+            // Se asume que `respuestaBackend.message === true` significa DISPONIBLE
+            return respuestaBackend?.message === true;
         } catch (error) {
-            throw error;
+            if (showToast) toast.error('Error al validar disponibilidad');
+            return false;
         }
     }
+
+    // Cuando el usuario selecciona una fecha, comprobamos en paralelo los slots y guardamos los bloqueados
+    useEffect(() => {
+        let mounted = true;
+
+        async function checkBlocked() {
+            if (!fechaSeleccionada) {
+                if (mounted) setBlockedHours(new Set());
+                return;
+            }
+
+            setCheckingBlocked(true);
+            const fechaYMD = formatDateToYMD(fechaSeleccionada);
+
+            try {
+                // paralelizamos las comprobaciones sobre los bloques de atención; showToast=false para no spamear al usuario
+                const attentionEntries = agenda.filter(e => e.type === 'attention');
+                const checks = await Promise.all(attentionEntries.map(async (entry) => {
+                    const available = await validarFechaDisponible(fechaYMD, entry.start, fechaYMD, entry.end, false);
+                    return {h: entry.start, available};
+                }));
+
+                if (!mounted) return;
+
+                const blocked = new Set(checks.filter(c => !c.available).map(c => c.h));
+                setBlockedHours(blocked);
+                // si la hora actualmente seleccionada quedó bloqueada, limpiarla
+                if (horaInicio && blocked.has(horaInicio)) {
+                    setHoraInicio("");
+                    setHoraFin("");
+                    setFechaInicio("");
+                    setFechaFinalizacion("");
+                    toast.error('La hora seleccionada ya no está disponible');
+                }
+            } catch (e) {
+                // Si hay fallo general, vaciamos bloqueos y no bloqueamos nada por seguridad
+                if (mounted) setBlockedHours(new Set());
+            } finally {
+                if (mounted) setCheckingBlocked(false);
+            }
+        }
+
+        checkBlocked();
+
+        return () => {
+            mounted = false;
+        }
+    }, [fechaSeleccionada, agenda]);
+
+    // Evitar llamadas al backend en cada render; useEffect gestiona comprobaciones.
 
     /* ---------- UI ---------- */
     return (
@@ -207,8 +273,9 @@ export default function CalendarioMensualHoras() {
 
                     {/* Calendario */}
                     <div className="mt-4 grid grid-cols-7 gap-2">
-                        {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d) => (
-                            <strong key={d} className="text-center text-xs font-semibold text-slate-400">{d}</strong>
+                        {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map((d, idx) => (
+                            <strong key={`weekday-${idx}`}
+                                    className="text-center text-xs font-semibold text-slate-400">{d}</strong>
                         ))}
 
                         {dias.map((dia, i) =>
@@ -235,29 +302,73 @@ export default function CalendarioMensualHoras() {
                     {fechaSeleccionada && (
                         <div className="mt-5">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-sm font-semibold text-slate-800">Horas disponibles</h3>
-                                <p className="text-xs text-slate-500">Bloques de 60 min · cada 15 min · 09:00–19:00</p>
+                                <h3 className="text-sm font-semibold text-slate-800">Agenda (09:00–21:00)</h3>
+                                <div className="flex items-center gap-3">
+                                    <p className="text-xs text-slate-500">Patrón: 45 min atención + 10 min descanso</p>
+                                    {checkingBlocked && (
+                                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                                            <svg className="w-3 h-3 animate-spin text-sky-500"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10"
+                                                        stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor"
+                                                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                            </svg>
+                                            <span>Comprobando disponibilidad...</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="mt-3 grid max-h-44 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3">
-                                {horas.map((h) => {
-                                    const fin = addMinutesToHHMM(h, 60);
-                                    const selected = horaInicio === h;
+                            <div className="mt-3 space-y-2 max-h-96 overflow-y-auto pr-1">
+                                {agenda.map((entry, idx) => {
+                                    if (entry.type === 'attention') {
+                                        const isBlocked = blockedHours.has(entry.start);
+                                        const selected = horaInicio === entry.start;
+                                        return (
+                                            <div key={idx}
+                                                 className="flex items-center justify-between rounded-md border border-sky-50 bg-white p-3">
+                                                <div>
+                                                    <div className="text-sm font-medium text-slate-800">Atención</div>
+                                                    <div
+                                                        className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    {isBlocked ? (
+                                                        <span
+                                                            className="inline-flex items-center gap-2 text-red-600 text-sm">
+                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                                                 xmlns="http://www.w3.org/2000/svg"><path
+                                                                d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"
+                                                                fill="#FEE2E2"/><path
+                                                                d="M8.53 8.53l6.94 6.94M15.47 8.53l-6.94 6.94"
+                                                                stroke="#DC2626" strokeWidth="1.5" strokeLinecap="round"
+                                                                strokeLinejoin="round"/></svg>
+                                                            No disponible
+                                                        </span>
+                                                    ) : (
+                                                        <button onClick={() => seleccionarInicio(entry.start)}
+                                                                className={"px-3 py-1 rounded-md font-semibold " + (selected ? 'bg-sky-600 text-white' : 'bg-white border border-sky-200 text-sky-600 hover:bg-sky-50')}>
+                                                            {selected ? 'Seleccionada' : 'Seleccionar'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )
+                                    }
 
+                                    // descanso
                                     return (
-                                        <button
-                                            key={h}
-                                            onClick={() => seleccionarInicio(h)}
-                                            className={
-                                                "group w-full rounded-md px-4 py-2 text-left text-sm transition focus:outline-none focus:ring-2 focus:ring-sky-200 focus:ring-offset-1 " +
-                                                (selected
-                                                    ? "border-sky-300 bg-sky-100 text-slate-800"
-                                                    : "border-sky-200 bg-white text-slate-600 hover:border-sky-300 hover:bg-sky-50")
-                                            }
-                                        >
-                                            <span className="tabular-nums">{h} – {fin}</span>
-                                        </button>
-                                    );
+                                        <div key={idx}
+                                             className="flex items-center justify-between rounded-md border border-sky-50 bg-sky-50 p-3">
+                                            <div>
+                                                <div className="text-sm font-medium text-slate-800">Descanso</div>
+                                                <div
+                                                    className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
+                                            </div>
+                                            <div className="text-xs text-slate-500">—</div>
+                                        </div>
+                                    )
                                 })}
                             </div>
                         </div>
