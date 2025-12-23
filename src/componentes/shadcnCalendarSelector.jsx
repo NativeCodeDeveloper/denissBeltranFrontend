@@ -25,6 +25,14 @@ function formatDate(date) {
     })
 }
 
+function formatISODateOnly(date) {
+    if (!date) return null
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    return `${year}-${month}-${day}`
+}
+
 function isValidDate(date) {
     if (!date) {
         return false
@@ -32,16 +40,22 @@ function isValidDate(date) {
     return !isNaN(date.getTime())
 }
 
-export default function Calendar28() {
+export function Calendar28({nombre, onChange}) {
     const [open, setOpen] = React.useState(false)
-    const [date, setDate] = React.useState(new Date("2025-06-01"))
-    const [month, setMonth] = React.useState(new Date("2025-06-01"))
-    const [value, setValue] = React.useState(formatDate(date))
+
+    // Fecha base (evita re-crear instancias distintas en renders inesperados)
+    const initialDate = React.useMemo(() => new Date("2025-06-01"), [])
+
+    const [date, setDate] = React.useState(initialDate)
+    const [month, setMonth] = React.useState(initialDate)
+
+    // `value` es el texto del input (puede diferir mientras el usuario escribe)
+    const [value, setValue] = React.useState(formatDate(initialDate))
 
     return (
         <div className="flex flex-col gap-3">
             <Label htmlFor="date" className="px-1">
-                Subscription Date
+                {nombre}
             </Label>
             <div className="relative flex gap-2">
                 <Input
@@ -50,11 +64,16 @@ export default function Calendar28() {
                     placeholder="June 01, 2025"
                     className="bg-background pr-10"
                     onChange={(e) => {
-                        const date = new Date(e.target.value)
-                        setValue(e.target.value)
-                        if (isValidDate(date)) {
-                            setDate(date)
-                            setMonth(date)
+                        const nextValue = e.target.value
+                        setValue(nextValue)
+
+                        // Intentamos interpretar lo que escribió el usuario.
+                        // Si es una fecha válida, sincronizamos date y month.
+                        const parsed = new Date(nextValue)
+                        if (isValidDate(parsed)) {
+                            setDate(parsed)
+                            setMonth(parsed)
+                            onChange?.(formatISODateOnly(parsed))
                         }
                     }}
                     onKeyDown={(e) => {
@@ -86,11 +105,22 @@ export default function Calendar28() {
                             selected={date}
                             captionLayout="dropdown"
                             month={month}
-                            onMonthChange={setMonth}
+                            onMonthChange={(nextMonth) => {
+                                // Evita setState innecesario (previene loops en algunos casos con DayPicker)
+                                setMonth((prev) =>
+                                    prev?.getTime?.() === nextMonth?.getTime?.() ? prev : nextMonth
+                                )
+                            }}
                             onSelect={(selectedDate) => {
+                                if (!selectedDate) return
+
                                 setDate(selectedDate)
+                                setMonth(selectedDate)
                                 setValue(formatDate(selectedDate))
                                 setOpen(false)
+
+                                // 🔹 Devuelve la fecha en formato YYYY-MM-DD
+                                onChange?.(formatISODateOnly(selectedDate))
                             }}
                         />
                     </PopoverContent>

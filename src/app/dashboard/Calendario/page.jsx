@@ -363,60 +363,60 @@ export default function Calendario() {
 
     return (
         // Contenedor con altura fija para que el calendario se muestre correctamente
-        <div className="min-h-screen bg-slate-50 p-6">
+        <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 px-4 py-6 md:px-8">
             <ToasterClient/>
 
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-4xl font-extrabold text-sky-700 mb-6">Módulo de Agenda</h1>
+            <div className="mx-auto w-full max-w-6xl">
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 mb-5">Módulo de Agenda</h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white shadow-md rounded-lg p-6">
-                        <div className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-sm p-5">
+                        <div className="space-y-3">
                             <div>
-                                <label className="block text-sm font-semibold text-sky-800 mb-2">Nombre</label>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Nombre</label>
                                 <ShadcnInput value={nombrePaciente ?? ""}
                                              onChange={(e) => setNombrePaciente(e.target.value)}/>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-sky-800 mb-2">Apellido</label>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Apellido</label>
                                 <ShadcnInput
                                     value={apellidoPaciente ?? ""}
                                     onChange={(e) => setApellidoPaciente(e.target.value)}/>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-sky-800 mb-2">Rut</label>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Rut</label>
                                 <ShadcnInput
                                     value={rut ?? ""}
                                     onChange={(e) => setRut(e.target.value)}/>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-sky-800 mb-2">Correo</label>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Correo</label>
                                 <ShadcnInput value={email ?? ""}
                                              onChange={(e) => setEmail(e.target.value)}/>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-sky-800 mb-2">Teléfono</label>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">Teléfono</label>
                                 <ShadcnInput value={telefono ?? ""}
                                              onChange={(e) => setTelefono(e.target.value)}/>
                             </div>
                         </div>
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="bg-white shadow-md rounded-lg p-6">
-                            <h2 className="text-lg font-semibold text-sky-700 mb-4">Inicio</h2>
-                            <div className="flex flex-col md:flex-row md:items-center md:gap-6">
+                    <div className="space-y-4">
+                        <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-sm p-5">
+                            <h2 className="text-sm font-semibold text-slate-900 mb-3">Inicio</h2>
+                            <div className="flex flex-col md:flex-row md:items-center md:gap-4">
 
                                 <div className="flex-1">
                                     <ShadcnFechaHora onChange={manejarFechaHoraInicio}/>
                                 </div>
 
                                 <div
-                                    className="mt-4 md:mt-0 bg-slate-50 border border-slate-200 rounded-lg p-3 w-full md:w-44">
+                                    className="mt-3 md:mt-0 bg-slate-50/70 border border-slate-200 rounded-xl p-3 w-full md:w-48">
                                     <div className="text-xs text-slate-500">Fecha</div>
                                     <div className="text-sm font-medium text-slate-800">{fechaInicio || "--"}</div>
                                     <div className="text-xs text-slate-500 mt-2">Hora</div>
@@ -426,16 +426,16 @@ export default function Calendario() {
                             </div>
                         </div>
 
-                        <div className="bg-white shadow-md rounded-lg p-6">
-                            <h2 className="text-lg font-semibold text-sky-700 mb-4">Final</h2>
-                            <div className="flex flex-col md:flex-row md:items-center md:gap-6">
+                        <div className="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-sm p-5">
+                            <h2 className="text-sm font-semibold text-slate-900 mb-3">Final</h2>
+                            <div className="flex flex-col md:flex-row md:items-center md:gap-4">
 
                                 <div className="flex-1">
                                     <ShadcnFechaHora onChange={manejarFechaHoraFinalizacion}/>
                                 </div>
 
                                 <div
-                                    className="mt-4 md:mt-0 bg-slate-50 border border-slate-200 rounded-lg p-3 w-full md:w-44">
+                                    className="mt-3 md:mt-0 bg-slate-50/70 border border-slate-200 rounded-xl p-3 w-full md:w-48">
                                     <div className="text-xs text-slate-500">Fecha</div>
                                     <div
                                         className="text-sm font-medium text-slate-800">{fechaFinalizacion || "--"}</div>
@@ -447,21 +447,20 @@ export default function Calendario() {
                             </div>
                         </div>
 
-                        <div className="flex gap-4 items-center">
+                        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                             <ShadcnButton2
                                 funcion={() => insertarNuevaReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion)}
-                                className="px-4 py-2 rounded-md bg-green-700 text-white hover:bg-green-600"
+                                className="h-10 w-full sm:w-auto px-4 rounded-lg bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm"
                                 nombre={"Agregar"}></ShadcnButton2>
 
                             <ShadcnButton2
                                 funcion={() => actualizarInformacionReserva(nombrePaciente, apellidoPaciente, rut, telefono, email, fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion, estadoReserva, id_reserva)}
-                                className="px-4 py-2 rounded-md bg-purple-800 text-white hover:bg-purple-600"
+                                className="h-10 w-full sm:w-auto px-4 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm"
                                 nombre={"Actualizar"}></ShadcnButton2>
-
 
                             <ShadcnButton2
                                 funcion={() => limpiarData()}
-                                className="px-4 py-2 rounded-md bg-blue-800 text-white hover:bg-blue-600"
+                                className="h-10 w-full sm:w-auto px-4 rounded-lg bg-slate-900 text-white hover:bg-slate-800 shadow-sm"
                                 nombre={"Limpiar"}></ShadcnButton2>
 
                         </div>

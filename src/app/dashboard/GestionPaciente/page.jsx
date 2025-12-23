@@ -3,9 +3,9 @@
 import {Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
 import {useState, useEffect} from "react";
 import ToasterClients from "@/componentes/ToasterClient";
-import {ShadcnInput} from "@/componentes/shadcnInput";
+import ShadcnInput from "@/componentes/shadcnInput";
 import {ShadcnSelect} from "@/componentes/shadcnSelect";
-import {ShadcnButton} from "@/componentes/shadcnButton";
+import ShadcnButton from "@/componentes/shadcnButton";
 import {toast} from "react-hot-toast";
 import * as React from "react"
 import ShadcnDatePicker from "@/componentes/shadcnDatePicker";
