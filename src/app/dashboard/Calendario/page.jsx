@@ -69,6 +69,24 @@ export default function Calendario() {
         return new Date(`${soloFecha}T${hora}`);
     }
 
+    // Helper: comprueba si un rango [start, end) se solapa con alguna reserva en dataAgenda
+    function isOverlapping(start, end) {
+        if (!dataAgenda || dataAgenda.length === 0) return false;
+
+        // Normalizamos a Date para comparar
+        for (const cita of dataAgenda) {
+            const evStart = convertirAFechaCalendario((cita.fechaInicio ?? "").slice(0, 10), (cita.horaInicio ?? "00:00:00"));
+            const evEnd = convertirAFechaCalendario((cita.fechaFinalizacion ?? "").slice(0, 10), (cita.horaFinalizacion ?? "00:00:00"));
+
+            // Si cualquier parte se solapa
+            if (start < evEnd && end > evStart) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     async function cargarDataAgenda() {
         try {
@@ -121,6 +139,11 @@ export default function Calendario() {
 
             if (final < inicio) {
                 return toast.error("No es posible en fechas irreales")
+            }
+
+            // Validación local: si el rango se solapa con alguna reserva ya cargada, evitar llamar al servidor
+            if (isOverlapping(inicio, final)) {
+                return toast.error('La hora seleccionada ya está ocupada (verifique otras horas)');
             }
 
 
@@ -236,6 +259,15 @@ export default function Calendario() {
         // Usamos title para mostrar tooltip nativo con el nombre completo
         return (
             <div title={event.title} className="break-words text-[12px] leading-tight">
+                {event.title}
+            </div>
+        );
+    };
+
+    // Componente que muestra SOLO el título (para vistas Day y Agenda)
+    const TitleOnlyEvent = ({event}) => {
+        return (
+            <div title={event.title} className="break-words text-[12px] leading-tight font-medium">
                 {event.title}
             </div>
         );
@@ -477,7 +509,12 @@ export default function Calendario() {
                             events={events}
                             // Evita que el título se corte en vistas comprimidas (p. ej. semana)
                             eventPropGetter={eventStyleGetter}
-                            components={{event: EventComponent}}
+                            // Usamos componentes específicos: para day y agenda mostramos sólo el título
+                            components={{
+                                event: EventComponent,
+                                day: {event: TitleOnlyEvent},
+                                agenda: {event: TitleOnlyEvent}
+                            }}
                             // Propiedades que indican qué campos del evento usar para inicio y fin
                             startAccessor="start"
                             endAccessor="end"
@@ -489,6 +526,17 @@ export default function Calendario() {
 
                             // Permite seleccionar rangos de tiempo en el calendario
                             selectable
+                            // Evitar seleccionar rangos que choquen con reservas existentes
+                            onSelecting={(slot) => {
+                                // slot puede ser {start, end} o directamente un objeto
+                                const start = slot.start ?? slot;
+                                const end = slot.end ?? slot;
+                                if (isOverlapping(start, end)) {
+                                    toast.error('Horario no disponible (solapa con una reserva existente)');
+                                    return false; // cancela la selección
+                                }
+                                return true;
+                            }}
 
                             onSelectEvent={(event) => {
                                 if (!event?.id_reserva) {
@@ -503,6 +551,12 @@ export default function Calendario() {
                             /* Función que se ejecuta al seleccionar un rango de tiempo.
                                Solicita al usuario el título del evento y lo añade a la lista de eventos */
                             onSelectSlot={(slotInfo) => {
+                                const start = slotInfo.start ?? slotInfo;
+                                const end = slotInfo.end ?? slotInfo;
+                                if (isOverlapping(start, end)) {
+                                    toast.error('No puede seleccionar un horario que ya está ocupado');
+                                    return;
+                                }
                                 const title = prompt("Título del evento");
                                 if (!title) return;
 
@@ -517,7 +571,7 @@ export default function Calendario() {
                             }}
                         />
                         {/* Leyenda / ayuda */}
-                        <div className="mt-4 flex items-center gap-4 text-sm text-slate-600 mt-10">
+                        <div className="flex items-center gap-4 text-sm text-slate-600 mt-10">
                             <span className="inline-block w-3 h-3 rounded-sm bg-sky-600" aria-hidden="true"/>
                             <span>Reserva</span>
                             <span className="ml-4 text-xs italic">Pasa el cursor sobre una reserva para ver el nombre completo</span>

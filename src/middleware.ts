@@ -14,7 +14,9 @@ export const config = {
 }
 
 
+
 * */
+
 
 // TypeScript
 // archivo: `frontend/src/middleware.ts`
@@ -26,7 +28,7 @@ import {NextResponse, type NextRequest} from 'next/server'
 const isProtectedRoute = createRouteMatcher(['/dashboard/:path*'])
 
 const ALLOWED_EMAILS = new Set([
-    'pruebas@nativecode.cl',
+    'dennisbeltran@medifyclinic.cl',
     'desarrollo.native.code@gmail.com'
 ])
 

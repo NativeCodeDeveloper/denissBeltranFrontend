@@ -1,5 +1,6 @@
 "use client"
 import {useState, useEffect} from "react";
+import Link from "next/link";
 import {useParams} from "next/navigation";
 import ToasterClient from "@/componentes/ToasterClient";
 import {toast} from "react-hot-toast";
@@ -321,6 +322,12 @@ export default function AgendaDetalle() {
                         funcion={() => setConfirmarEliminacion(true)}
                     />
 
+                    <Link href={"/dashboard/GestionAgendas"}>
+                        <ShadcnButton2
+                            className="bg-green-600 hover:bg-green-500 rounded-xl shadow-sm hover:shadow-md transition active:scale-[0.99]"
+                            nombre={"Retroceder"}
+                        />
+                    </Link>
                 </div>
 
                 {confirmarEliminacion && (

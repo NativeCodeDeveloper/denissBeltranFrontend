@@ -363,7 +363,7 @@ export default function GestionAgendas() {
                                     <SelectItem value="anulada">Anulada</SelectItem>
                                     <SelectItem value="confirmada">Confirmada</SelectItem>
                                     <SelectItem value="completada">Completada</SelectItem>
-                                    <SelectItem value="pendiente">Pendiente</SelectItem>
+                                    <SelectItem value="pendiente pago">Pendiente</SelectItem>
                                 </SelectGroup>
                             </SelectContent>
                         </Select>
