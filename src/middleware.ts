@@ -27,7 +27,7 @@ const isProtectedRoute = createRouteMatcher(['/dashboard/:path*'])
 
 const ALLOWED_EMAILS = new Set([
     'pruebas@nativecode.cl',
-    'soporte@nativecode.cl'
+    'desarrollo.native.code@gmail.com'
 ])
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {

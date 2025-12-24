@@ -56,7 +56,8 @@ export default function FormularioPago() {
                     fechaFinalizacion,
                     horaFinalizacion,
                     estadoReserva: "pendiente pago"
-                })
+                }),
+                mode: "cors",
 
             });
 
@@ -69,7 +70,7 @@ export default function FormularioPago() {
 
             if (data) {
 
-                const checkoutUrl = data?.sandbox_init_point || data?.init_point;
+                const checkoutUrl = data?.init_point;
                 console.log("checkoutUrl:", checkoutUrl);
 
                 if (checkoutUrl) {
