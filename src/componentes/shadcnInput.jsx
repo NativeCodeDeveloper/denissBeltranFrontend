@@ -2,14 +2,14 @@
 
 import {Input} from "@/components/ui/input";
 
-export default function ShadcnInput({
-                                        placeholder,
-                                        value,
-                                        onChange,
-                                        type = "text",
-                                        className = "",
-                                        ...props
-                                    }) {
+export function ShadcnInput({
+                                placeholder,
+                                value,
+                                onChange,
+                                type = "text",
+                                className = "",
+                                ...props
+                            }) {
     return (
         <Input
             type={type}
@@ -21,3 +21,5 @@ export default function ShadcnInput({
         />
     );
 }
+
+export default ShadcnInput;

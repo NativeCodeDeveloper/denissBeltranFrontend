@@ -2,7 +2,7 @@
 
 import {Button} from "@/components/ui/button"
 
-export default function ShadcnButton({nombre, funcion}) {
+export function ShadcnButton({nombre, funcion}) {
     return (
         <div className="flex flex-wrap items-center gap-2 md:flex-row">
             <Button
@@ -14,3 +14,5 @@ export default function ShadcnButton({nombre, funcion}) {
         </div>
     )
 }
+
+export default ShadcnButton;
