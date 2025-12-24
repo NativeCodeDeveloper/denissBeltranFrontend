@@ -1,3 +1,5 @@
+/*
+
 // frontend/src/middleware.ts
 import {NextResponse, type NextRequest} from 'next/server'
 
@@ -12,22 +14,19 @@ export const config = {
 }
 
 
-/*
-
-
-
+* */
 
 // TypeScript
 // archivo: `frontend/src/middleware.ts`
-import { clerkMiddleware, clerkClient, createRouteMatcher } from '@clerk/nextjs/server'
-import { NextResponse, type NextRequest } from 'next/server'
+import {clerkMiddleware, clerkClient, createRouteMatcher} from '@clerk/nextjs/server'
+import {NextResponse, type NextRequest} from 'next/server'
 
 // Matcher que detecta cualquier ruta dentro de /dashboard (incluye layout y subrutas)
 // Usamos la sintaxis Next.js '/dashboard/:path*' que coincide con /dashboard y todas sus subrutas
 const isProtectedRoute = createRouteMatcher(['/dashboard/:path*'])
 
 const ALLOWED_EMAILS = new Set([
-    'dennisbeltranmedify@gmail.com',
+    'pruebas@nativecode.cl',
     'soporte@nativecode.cl'
 ])
 
@@ -54,7 +53,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     }
 
     // Estado de autenticación actual
-    const { userId } = await auth()
+    const {userId} = await auth()
 
     // 1) Si NO está autenticado → llevar a /sign-up (como pediste)
     if (!userId) {
@@ -93,4 +92,4 @@ export const config = {
         '/dashboard/:path*'
     ],
 }
-* */
+

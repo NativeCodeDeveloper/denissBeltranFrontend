@@ -251,12 +251,12 @@ export default function GestionPaciente() {
                 <div className="space-y-6">
 
                     {/* Form card */}
-                    <div className="bg-white shadow-xl rounded-2xl p-6 md:p-8 border border-gray-100">
+                    <div className="bg-white shadow-sm rounded-xl p-6 md:p-8 border border-sky-100">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold text-blue-900">Ingreso de paciente</h2>
                         </div>
 
-                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
 
                             <div className="">
                                 <label className="text-sm font-medium text-gray-700">Nombre</label>
@@ -265,7 +265,7 @@ export default function GestionPaciente() {
                                         value={nombre}
                                         placeholder={"Ej: Andrea Ignacia "}
                                         onChange={(e) => setNombre(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -277,7 +277,7 @@ export default function GestionPaciente() {
                                         value={apellido}
                                         placeholder={"Ej: Varela Garrido "}
                                         onChange={(e) => setApellido(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -288,7 +288,7 @@ export default function GestionPaciente() {
                                         value={rut}
                                         placeholder={"Ej: 12.345.567-8 "}
                                         onChange={(e) => setRut(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -300,7 +300,7 @@ export default function GestionPaciente() {
                                         value={sexo}
                                         placeholder={"Ej: Femenino"}
                                         onChange={(e) => setSexo(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -327,7 +327,7 @@ export default function GestionPaciente() {
                                         value={telefono}
                                         placeholder={"Ej: +569 99764369"}
                                         onChange={(e) => setTelefono(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -338,7 +338,7 @@ export default function GestionPaciente() {
                                         value={correo}
                                         placeholder={"CorreoDelPaciente@gmail.com"}
                                         onChange={(e) => setCorreo(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -350,7 +350,7 @@ export default function GestionPaciente() {
                                         placeholder={"Avenida España 123 / Concepcion"}
                                         value={direccion}
                                         onChange={(e) => setDireccion(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -361,7 +361,7 @@ export default function GestionPaciente() {
                                         value={pais}
                                         placeholder={"Ej: Argentina"}
                                         onChange={(e) => setPais(e.target.value)}
-                                        className="bg-gray-50 w-full sm:w-[7.5rem]"/>
+                                        className="bg-gray-50 w-full"/>
                                 </div>
                             </div>
 
@@ -379,7 +379,7 @@ export default function GestionPaciente() {
                             <div className="sm:col-span-2 flex justify-end">
 
                                 <button
-                                    className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-sky-700 to-blue-600 text-white font-semibold shadow-lg hover:from-sky-800 hover:to-blue-700 transition"
+                                    className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-900 text-white font-semibold shadow hover:bg-blue-800 transition"
                                     type={"button"}
                                     onClick={() => insertarPaciente(nombre, apellido, rut, nacimiento, sexo, prevision, telefono, correo, direccion, pais)}
                                 >Ingresar
@@ -392,8 +392,8 @@ export default function GestionPaciente() {
 
 
                     {/* Search card */}
-                    <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
-                        <h3 className="text-lg font-medium text-sky-800">Búsqueda de pacientes</h3>
+                    <div className="bg-white shadow-sm rounded-xl p-6 border border-sky-100">
+                        <h3 className="text-lg font-semibold text-blue-900">Búsqueda de pacientes</h3>
                         <p className="text-sm text-gray-500 mt-1">Busca por nombre o RUT para evitar duplicados.</p>
 
                         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -435,7 +435,7 @@ export default function GestionPaciente() {
 
 
                     {/* Table card */}
-                    <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100 overflow-x-auto">
+                    <div className="bg-white shadow-sm rounded-xl p-6 border border-sky-100 overflow-x-auto">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold text-gray-800">Listado de Pacientes</h3>
                             <div className="text-sm text-gray-500">Total: <span
@@ -443,35 +443,48 @@ export default function GestionPaciente() {
                             </div>
                         </div>
 
-                        <ShadcnButton nombre={"Mostrar Todos"} funcion={() => listarPacientes()}/>
+                        <div className="mb-4">
+                            <button onClick={() => listarPacientes()}
+                                    className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-900 text-white text-sm font-medium hover:bg-blue-800">
+                                Mostrar Todos
+                            </button>
+                        </div>
 
                         <Table>
                             <TableCaption className="font-semibold text-sky-700">Listado de Pacientes
                                 Ingresados</TableCaption>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[120px] text-left font-bold">Ver Datos</TableHead>
-                                    <TableHead className="w-[120px] text-left font-bold">Nombre</TableHead>
-                                    <TableHead className="text-left font-bold">Apellido</TableHead>
-                                    <TableHead className="text-left font-bold">RUT</TableHead>
-                                    <TableHead className="text-right font-bold">Telefono</TableHead>
-                                    <TableHead className="text-right font-bold">Correo</TableHead>
+                                <TableRow className="bg-blue-900">
+                                    <TableHead className="w-[120px] text-left font-bold text-white px-3 py-2">Ver
+                                        Datos</TableHead>
+                                    <TableHead
+                                        className="w-[120px] text-left font-bold text-white px-3 py-2">Nombre</TableHead>
+                                    <TableHead className="text-left font-bold text-white px-3 py-2">Apellido</TableHead>
+                                    <TableHead className="text-left font-bold text-white px-3 py-2">RUT</TableHead>
+                                    <TableHead
+                                        className="text-right font-bold text-white px-3 py-2">Telefono</TableHead>
+                                    <TableHead className="text-right font-bold text-white px-3 py-2">Correo</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {pacientesParaRenderizarEnTabla.map((paciente) => (
-                                    <TableRow key={paciente.id_paciente} className="hover:bg-sky-50">
-                                        <TableCell className="font-medium text-gray-800 text-left">
-                                            <button
-                                                onClick={() => verDetallePaciente(paciente.id_paciente)}
-                                            ><UserIcon className="w-6 h-6 text-sky-700 hover:text-green-400"/></button>
+                                {pacientesParaRenderizarEnTabla.map((paciente, i) => (
+                                    <TableRow key={paciente.id_paciente}
+                                              className={"hover:bg-slate-50 " + (i % 2 === 0 ? 'bg-white' : 'bg-slate-50')}>
+                                        <TableCell className="font-medium text-gray-800 text-left px-3 py-2">
+                                            <button onClick={() => verDetallePaciente(paciente.id_paciente)}>
+                                                <UserIcon className="w-5 h-5 text-blue-900 hover:text-blue-700"/>
+                                            </button>
                                         </TableCell>
                                         <TableCell
-                                            className="font-medium text-gray-800 text-left">{paciente.nombre}</TableCell>
-                                        <TableCell className="text-gray-600 text-left">{paciente.apellido}</TableCell>
-                                        <TableCell className="text-gray-600 text-left">{paciente.rut}</TableCell>
-                                        <TableCell className="text-right text-gray-600">{paciente.telefono}</TableCell>
-                                        <TableCell className="text-right text-gray-600">{paciente.correo}</TableCell>
+                                            className="font-medium text-gray-800 text-left px-3 py-2">{paciente.nombre}</TableCell>
+                                        <TableCell
+                                            className="text-gray-600 text-left px-3 py-2">{paciente.apellido}</TableCell>
+                                        <TableCell
+                                            className="text-gray-600 text-left px-3 py-2">{paciente.rut}</TableCell>
+                                        <TableCell
+                                            className="text-right text-gray-600 px-3 py-2">{paciente.telefono}</TableCell>
+                                        <TableCell
+                                            className="text-right text-gray-600 px-3 py-2">{paciente.correo}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

@@ -1,5 +1,5 @@
 "use client";
-import {useMemo, useState, useEffect} from "react";
+import {useMemo, useState, useEffect, useRef} from "react";
 import {Michroma} from "next/font/google";
 import {useAgenda} from "@/ContextosApp/AgendaContext";
 import Link from "next/link";
@@ -21,12 +21,14 @@ function formatDateToYMD(date) {
 export default function CalendarioMensualHoras() {
     const [mesActual, setMesActual] = useState(new Date());
     const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
+    // Ref para evitar que resultados asíncronos antiguos sobrescriban acciones manuales recientes
+    const lastManualUpdateRef = useRef(0);
 
     const {
         horaInicio, setHoraInicio,
-        horaFin, setHoraFin,
-        fechaInicio, setFechaInicio,
-        fechaFinalizacion, setFechaFinalizacion
+        setHoraFin,
+        setFechaInicio,
+        setFechaFinalizacion
     } = useAgenda();
 
 
@@ -43,10 +45,10 @@ export default function CalendarioMensualHoras() {
         return dias;
     };
 
-    // Genera la agenda con bloques: 45 min atención + 10 min descanso desde 09:00 hasta 21:00.
-    // Cada entry es {type: 'attention'|'break', start: 'HH:MM', end: 'HH:MM'}
-    const agenda = useMemo(() => {
-        const entries = [];
+    // Genera solo los bloques de atención (40 min) desde 09:00 hasta 21:00.
+    // Los inicios van separados por 50 minutos (40 atención + 10 descanso), pero los descansos no se muestran.
+    const attentionSlots = useMemo(() => {
+        const slots = [];
         const startMinutes = 9 * 60; // 09:00
         const endMinutes = 21 * 60; // 21:00
         let cursor = startMinutes;
@@ -57,21 +59,15 @@ export default function CalendarioMensualHoras() {
             return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
         };
 
-        while (cursor + 45 <= endMinutes) {
+        while (cursor + 40 <= endMinutes) {
             const attStart = cursor;
-            const attEnd = cursor + 45;
-            entries.push({type: 'attention', start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd)});
-
-            const breakStart = attEnd;
-            const breakEnd = Math.min(attEnd + 10, endMinutes);
-            if (breakStart < endMinutes) {
-                entries.push({type: 'break', start: minutesToHHMM(breakStart), end: minutesToHHMM(breakEnd)});
-            }
-
+            const attEnd = cursor + 40;
+            slots.push({start: minutesToHHMM(attStart), end: minutesToHHMM(attEnd)});
+            // avanzar 40 + 10 minutos (=50) para el siguiente inicio
             cursor = attEnd + 10;
         }
 
-        return entries;
+        return slots;
     }, []);
 
     const addMinutesToHHMM = (hhmm, minutesToAdd) => {
@@ -90,7 +86,7 @@ export default function CalendarioMensualHoras() {
 
         // Si ya hay hora seleccionada, mantenla y recalcula las cadenas en el contexto
         if (horaInicio) {
-            const horaFinAuto = addMinutesToHHMM(horaInicio, 60);
+            const horaFinAuto = addMinutesToHHMM(horaInicio, 40);
             setHoraFin(horaFinAuto);
             setFechaInicio(fechaYMD);
             setFechaFinalizacion(fechaYMD);
@@ -104,7 +100,7 @@ export default function CalendarioMensualHoras() {
     };
 
     const seleccionarInicio = (hora) => {
-        const horaFinAuto = addMinutesToHHMM(hora, 60);
+        const horaFinAuto = addMinutesToHHMM(hora, 40);
 
         setHoraInicio(hora);
         setHoraFin(horaFinAuto);
@@ -114,6 +110,38 @@ export default function CalendarioMensualHoras() {
             const fechaYMD = formatDateToYMD(fechaSeleccionada);
             setFechaInicio(fechaYMD);
             setFechaFinalizacion(fechaYMD);
+
+            // Marcar acción manual para que cualquier checkBlocked en curso no sobreescriba cambios
+            lastManualUpdateRef.current = Date.now();
+
+            // Revalidar slots adyacentes para evitar que la selección haga que los vecinos aparezcan bloqueados
+            (async () => {
+                try {
+                    const idx = attentionSlots.findIndex(s => s.start === hora);
+                    if (idx === -1) return;
+
+                    const neighbors = [];
+                    if (idx - 1 >= 0) neighbors.push(attentionSlots[idx - 1]);
+                    if (idx + 1 < attentionSlots.length) neighbors.push(attentionSlots[idx + 1]);
+
+                    for (const n of neighbors) {
+                        const res = await validarFechaDisponible(formatDateToYMD(fechaSeleccionada), n.start, formatDateToYMD(fechaSeleccionada), n.end, false);
+                        // res is object {available, ...}
+                        if (res && res.available) {
+                            setBlockedHours(prev => {
+                                if (!prev.has(n.start)) return prev;
+                                const copy = new Set(prev);
+                                copy.delete(n.start);
+                                // actualizar resumen también
+                                setCheckSummary({blocked: copy.size, total: attentionSlots.length});
+                                return copy;
+                            });
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error revalidando vecinos:', err);
+                }
+            })();
         }
     };
 
@@ -122,6 +150,7 @@ export default function CalendarioMensualHoras() {
 
     const [blockedHours, setBlockedHours] = useState(new Set());
     const [checkingBlocked, setCheckingBlocked] = useState(false);
+    const [checkSummary, setCheckSummary] = useState({blocked: 0, total: 0});
 
     // Comprueba si un slot está disponible. Devuelve true si está disponible, false si está ocupado.
     // showToast: opcional, si true mostrará mensajes de error al usuario.
@@ -142,18 +171,50 @@ export default function CalendarioMensualHoras() {
                 body: JSON.stringify({fechaInicio, horaInicio, fechaFinalizacion, horaFinalizacion})
             });
 
-            if (!res.ok) {
-                if (showToast) toast.error('No hay respuesta del servidor');
-                return false;
+            let respuestaBackend;
+            try {
+                respuestaBackend = await res.json();
+            } catch (err) {
+                respuestaBackend = null;
             }
 
-            const respuestaBackend = await res.json();
+            const status = res.status;
 
-            // Se asume que `respuestaBackend.message === true` significa DISPONIBLE
-            return respuestaBackend?.message === true;
+            // Logging para depuración
+            console.debug('validarFechaDisponible ->', {
+                fechaInicio,
+                horaInicio,
+                fechaFinalizacion,
+                horaFinalizacion,
+                status,
+                body: respuestaBackend
+            });
+
+            // Determinar disponibilidad
+            if (respuestaBackend && respuestaBackend.message === true) return {
+                available: true,
+                status,
+                body: respuestaBackend,
+                error: false
+            };
+            if (respuestaBackend && respuestaBackend.message === false) return {
+                available: false,
+                status,
+                body: respuestaBackend,
+                error: false
+            };
+
+            if (res.ok) return {available: true, status, body: respuestaBackend, error: false};
+
+            // status no OK y sin body
+            if (!res.ok) {
+                if (showToast) toast.error('No hay respuesta válida del servidor');
+                return {available: false, status, body: respuestaBackend, error: false};
+            }
         } catch (error) {
-            if (showToast) toast.error('Error al validar disponibilidad');
-            return false;
+            if (showToast) toast.error('Error de red al validar disponibilidad');
+            console.error('validarFechaDisponible error:', error);
+            return {available: true, status: 0, body: null, error: true};
         }
     }
 
@@ -171,17 +232,42 @@ export default function CalendarioMensualHoras() {
             const fechaYMD = formatDateToYMD(fechaSeleccionada);
 
             try {
-                // paralelizamos las comprobaciones sobre los bloques de atención; showToast=false para no spamear al usuario
-                const attentionEntries = agenda.filter(e => e.type === 'attention');
-                const checks = await Promise.all(attentionEntries.map(async (entry) => {
-                    const available = await validarFechaDisponible(fechaYMD, entry.start, fechaYMD, entry.end, false);
-                    return {h: entry.start, available};
-                }));
+                // paralelizamos las comprobaciones por batches para limitar concurrencia
+                const attentionEntries = attentionSlots; // ahora es la lista de atenciones (sin descansos)
+                const limit = 6; // máximo requests simultáneos
+                const checks = [];
+
+                for (let i = 0; i < attentionEntries.length; i += limit) {
+                    const batch = attentionEntries.slice(i, i + limit);
+                    const batchResults = await Promise.all(batch.map(async (entry) => {
+                        const result = await validarFechaDisponible(fechaYMD, entry.start, fechaYMD, entry.end, false);
+                        return {h: entry.start, ...result};
+                    }));
+
+                    checks.push(...batchResults);
+                }
 
                 if (!mounted) return;
 
-                const blocked = new Set(checks.filter(c => !c.available).map(c => c.h));
-                setBlockedHours(blocked);
+                const blocked = new Set(checks.filter(c => c.available === false).map(c => c.h));
+                // Si hubo una actualización manual después de que este check comenzó, NO aplicamos su resultado
+                if (lastManualUpdateRef.current > checkStart) {
+                    console.debug('checkBlocked result skipped because of manual update', {
+                        skippedAt: lastManualUpdateRef.current,
+                        checkStart
+                    });
+                } else {
+                    setBlockedHours(blocked);
+                    // actualizar resumen para debug en UI
+                    setCheckSummary({blocked: blocked.size, total: attentionEntries.length});
+                }
+                console.debug('checkBlocked ->', {total: attentionEntries.length, blocked: blocked.size, raw: checks});
+
+                // heurística: si todas las respuestas indican no disponible, probablemente hay un problema en el backend
+                if (blocked.size === attentionEntries.length) {
+                    toast.error('Todas las horas resultaron ocupadas al verificar — revisa el backend o intenta recargar');
+                }
+
                 // si la hora actualmente seleccionada quedó bloqueada, limpiarla
                 if (horaInicio && blocked.has(horaInicio)) {
                     setHoraInicio("");
@@ -198,12 +284,16 @@ export default function CalendarioMensualHoras() {
             }
         }
 
+        // startTimestamp para comparar con lastManualUpdateRef
+        const checkStart = Date.now();
+        // Hacemos disponible el timestamp a la función mediante closure
+        checkBlocked.checkStart = checkStart;
         checkBlocked();
 
         return () => {
             mounted = false;
         }
-    }, [fechaSeleccionada, agenda]);
+    }, [fechaSeleccionada, attentionSlots]);
 
     // Evitar llamadas al backend en cada render; useEffect gestiona comprobaciones.
 
@@ -304,7 +394,8 @@ export default function CalendarioMensualHoras() {
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-semibold text-slate-800">Agenda (09:00–21:00)</h3>
                                 <div className="flex items-center gap-3">
-                                    <p className="text-xs text-slate-500">Patrón: 45 min atención + 10 min descanso</p>
+                                    <p className="text-xs text-slate-500">Patrón: 40 min atención + 10 min descanso
+                                        (interno)</p>
                                     {checkingBlocked && (
                                         <div className="flex items-center gap-2 text-xs text-slate-500">
                                             <svg className="w-3 h-3 animate-spin text-sky-500"
@@ -321,91 +412,70 @@ export default function CalendarioMensualHoras() {
                             </div>
 
                             <div className="mt-3 space-y-2 max-h-96 overflow-y-auto pr-1">
-                                {agenda.map((entry, idx) => {
-                                    if (entry.type === 'attention') {
-                                        const isBlocked = blockedHours.has(entry.start);
-                                        const selected = horaInicio === entry.start;
-                                        return (
-                                            <div key={idx}
-                                                 className="flex items-center justify-between rounded-md border border-sky-50 bg-white p-3">
-                                                <div>
-                                                    <div className="text-sm font-medium text-slate-800">Atención</div>
-                                                    <div
-                                                        className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    {isBlocked ? (
-                                                        <span
-                                                            className="inline-flex items-center gap-2 text-red-600 text-sm">
-                                                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                                                                 xmlns="http://www.w3.org/2000/svg"><path
-                                                                d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"
-                                                                fill="#FEE2E2"/><path
-                                                                d="M8.53 8.53l6.94 6.94M15.47 8.53l-6.94 6.94"
-                                                                stroke="#DC2626" strokeWidth="1.5" strokeLinecap="round"
-                                                                strokeLinejoin="round"/></svg>
-                                                            No disponible
-                                                        </span>
-                                                    ) : (
-                                                        <button onClick={() => seleccionarInicio(entry.start)}
-                                                                className={"px-3 py-1 rounded-md font-semibold " + (selected ? 'bg-sky-600 text-white' : 'bg-white border border-sky-200 text-sky-600 hover:bg-sky-50')}>
-                                                            {selected ? 'Seleccionada' : 'Seleccionar'}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )
-                                    }
+                                {attentionSlots.map((entry, idx) => {
+                                    const isBlocked = blockedHours.has(entry.start);
+                                    const selected = horaInicio === entry.start;
+                                    // displayEnd es el inicio del siguiente slot (visual continúo). Para el último, usamos start + 50min.
+                                    const displayEnd = (idx + 1 < attentionSlots.length) ? attentionSlots[idx + 1].start : addMinutesToHHMM(entry.start, 50);
 
-                                    // descanso
                                     return (
-                                        <div key={idx}
-                                             className="flex items-center justify-between rounded-md border border-sky-50 bg-sky-50 p-3">
+                                        <div key={entry.start}
+                                             className={"flex items-center justify-between rounded-md border p-3 " + (isBlocked ? 'bg-red-50 border-red-100 text-red-700' : 'bg-white border-sky-50')}>
                                             <div>
-                                                <div className="text-sm font-medium text-slate-800">Descanso</div>
                                                 <div
-                                                    className="text-xs text-slate-500">{entry.start} – {entry.end}</div>
+                                                    className={"text-sm font-medium " + (isBlocked ? 'text-red-700' : 'text-slate-800')}>Atención
+                                                </div>
+                                                <div
+                                                    className={"text-xs " + (isBlocked ? 'text-red-500' : 'text-slate-500')}>{entry.start} – {displayEnd}</div>
+                                                <div className="text-[11px] text-slate-400">(Atención: 40 min, +10 min
+                                                    receso interno)
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-slate-500">—</div>
+                                            <div className="flex items-center gap-3">
+                                                {isBlocked ? (
+                                                    <span
+                                                        className="inline-flex items-center gap-2 text-sm text-red-600">
+                                                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none"
+                                                             xmlns="http://www.w3.org/2000/svg"><path
+                                                            d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"
+                                                            fill="#FEE2E2"/><path
+                                                            d="M8.53 8.53l6.94 6.94M15.47 8.53l-6.94 6.94"
+                                                            stroke="#DC2626" strokeWidth="1.5" strokeLinecap="round"
+                                                            strokeLinejoin="round"/></svg>
+                                                        No disponible
+                                                    </span>
+                                                ) : (
+                                                    <button onClick={() => seleccionarInicio(entry.start)}
+                                                            className={"px-3 py-1 rounded-md font-semibold " + (selected ? 'bg-sky-600 text-white' : 'bg-white border border-sky-200 text-sky-600 hover:bg-sky-50')}>
+                                                        {selected ? 'Seleccionada' : 'Seleccionar'}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     )
                                 })}
                             </div>
+
+                            {/* Resumen de verificación (debug) */}
+                            <div className="mt-4 text-center text-xs text-slate-500">
+                                <span>Bloqueados: {checkSummary.blocked} / {checkSummary.total} slots</span>
+                            </div>
                         </div>
                     )}
-
-                    {/* Resultado */}
-                    <div className="mt-6 rounded-2xl border border-sky-100 bg-sky-50 p-3 text-slate-800">
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm font-semibold text-slate-800">Resultado</div>
-                            <div className="text-xs text-slate-500">Resumen</div>
-                        </div>
-
-                        <div className="mt-3 grid gap-2 rounded-xl border border-sky-100 bg-white p-3">
-                            <div className="flex items-center justify-between text-sm">
-                                <span className="font-mono text-sky-500">Rango</span>
-                                <span
-                                    className="font-semibold tabular-nums">{horaInicio && horaFin ? `${horaInicio} – ${horaFin}` : "-"}</span>
-                            </div>
-
-                            <div className="flex items-center justify-between text-[13px]">
-                                <span className="font-mono text-sky-500">fechaInicio</span>
-                                <span
-                                    className="font-mono tabular-nums text-slate-700">{fechaInicio || "-"}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[13px]">
-                                <span className="font-mono text-sky-500">fechaFinalizacion</span>
-                                <span
-                                    className="font-mono tabular-nums text-slate-700">{fechaFinalizacion || "-"}</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
-            </div>
-            <div className="w-full flex justify-center mt-20">
-                <Link href={"/formularioPago"}>
-                    <ShadcnButton2 nombre={"SIGUIENTE"}></ShadcnButton2>
-                </Link>
+                <br/>
+
+                <div>
+                    <Link href={"/formularioPago"}>
+                        <ShadcnButton2 nombre={"SIGUIENTE"}/>
+                    </Link>
+                </div>
+
+                <footer className="mt-8 text-center text-xs text-slate-500">
+                    <p>
+                        Medify · Todos los derechos reservados.
+                    </p>
+                </footer>
             </div>
         </div>
     );

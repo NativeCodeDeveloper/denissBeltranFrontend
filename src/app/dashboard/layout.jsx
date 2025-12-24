@@ -50,11 +50,6 @@ export default function DashboardLayout({children}) {
                         </Link>
                     </li>
 
-                    <li>
-                        <Link className={navItemClass("/dashboard/GestionPagos")} href="/dashboard/GestionPagos">
-                            Gestion de Pagos
-                        </Link>
-                    </li>
 
                     <li>
                         <Link className={navItemClass("/dashboard/FichaClinica")} href="/dashboard/FichaClinica">
