@@ -1,5 +1,3 @@
-/*
-
 // frontend/src/middleware.ts
 import {NextResponse, type NextRequest} from 'next/server'
 
@@ -14,8 +12,8 @@ export const config = {
 }
 
 
+/*
 
-* */
 
 
 // TypeScript
@@ -95,3 +93,4 @@ export const config = {
     ],
 }
 
+* */

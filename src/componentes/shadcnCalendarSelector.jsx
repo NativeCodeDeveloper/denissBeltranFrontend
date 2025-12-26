@@ -62,7 +62,7 @@ export function Calendar28({nombre, onChange}) {
                     id="date"
                     value={value}
                     placeholder="June 01, 2025"
-                    className="bg-background pr-10"
+                    className="bg-white text-slate-900 border border-gray-200 rounded-md pr-10 py-2 shadow-sm"
                     onChange={(e) => {
                         const nextValue = e.target.value
                         setValue(nextValue)
@@ -95,7 +95,7 @@ export function Calendar28({nombre, onChange}) {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                        className="w-auto overflow-hidden p-0"
+                        className="w-auto overflow-hidden p-3 bg-white text-slate-900 rounded-lg border border-gray-200 shadow-lg"
                         align="end"
                         alignOffset={-8}
                         sideOffset={10}

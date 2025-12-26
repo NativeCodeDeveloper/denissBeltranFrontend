@@ -5,6 +5,7 @@ import {useAgenda} from "@/ContextosApp/AgendaContext";
 import Link from "next/link";
 import ShadcnButton2 from "@/componentes/shadcnButton2";
 import {toast} from "react-hot-toast";
+import * as React from "react";
 
 const michroma = Michroma({
     subsets: ["latin"],
@@ -465,7 +466,11 @@ export default function CalendarioMensualHoras() {
                 </div>
                 <br/>
 
-                <div>
+                <div className="flex gap-5">
+                    <Link href={"/"}>
+                        <ShadcnButton2 nombre={"RETROCEDER"}/>
+                    </Link>
+
                     <Link href={"/formularioPago"}>
                         <ShadcnButton2 nombre={"SIGUIENTE"}/>
                     </Link>

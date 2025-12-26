@@ -302,13 +302,15 @@ export default function AgendaDetalle() {
                             className="z-50 bg-white text-slate-900 border border-gray-200 shadow-xl rounded-2xl">
                             <SelectGroup>
                                 <SelectItem className="cursor-pointer rounded-lg focus:bg-sky-50 focus:text-slate-900"
-                                            value="Finalizada">Finalizada</SelectItem>
+                                            value="reservada">Reservada</SelectItem>
                                 <SelectItem className="cursor-pointer rounded-lg focus:bg-sky-50 focus:text-slate-900"
-                                            value="Reservada">Reservada</SelectItem>
+                                            value="anulada">Anulada</SelectItem>
                                 <SelectItem className="cursor-pointer rounded-lg focus:bg-sky-50 focus:text-slate-900"
-                                            value="Cancelada">Cancelada</SelectItem>
+                                            value="confirmada">Confirmada</SelectItem>
                                 <SelectItem className="cursor-pointer rounded-lg focus:bg-sky-50 focus:text-slate-900"
-                                            value="Anulada">Anulada</SelectItem>
+                                            value="completada">Completada</SelectItem>
+                                <SelectItem className="cursor-pointer rounded-lg focus:bg-sky-50 focus:text-slate-900"
+                                            value="pendiente pago">Pendiente</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
