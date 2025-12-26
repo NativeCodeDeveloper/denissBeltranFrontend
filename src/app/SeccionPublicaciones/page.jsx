@@ -129,22 +129,22 @@ export default function SeccionPublicaciones() {
   }
 
   return (
-    <div className="bg-gradient-to-b from-white via-rose-25 to-rose-50 py-20">
-      <div className="max-w-7xl mx-auto px-8">
+    <div className="bg-gradient-to-b from-white via-rose-25 to-rose-50 py-12 sm:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header de la sección */}
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
             Publicaciones Recientes
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
             Descubre contenido especializado en salud mental y bienestar emocional
           </p>
           
         </div>
 
         {/* Grid de publicaciones - siempre 3 tarjetas */}
-        <div className="grid gap-12 md:grid-cols-3 lg:gap-16">
+        <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
           {publicaciones.slice(0, 3).map((publicacion) => (
             <PublicacionCard 
               key={publicacion.id || publicacion.id_publicacion} 

@@ -8,44 +8,48 @@ export default function Footer() {
     <div className="relative bg-gradient-to-b from-rose-100 via-white to-white rounded-t-3xl shadow-inner">
 
       {/**CONTENEDOR PRINCIPAL*/}
-      <div className="p-8 w-full grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
+      <div className="p-4 sm:p-6 lg:p-8 w-full grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 items-center">
         <h1 className="text-rose-700 font-semibold tracking-wide hidden md:block">CONSULTAS</h1>
         <h1 className="text-rose-700 font-semibold tracking-wide hidden md:block">SEGUIMIENTO</h1>
         <h1 className="text-rose-700 font-semibold tracking-wide hidden md:block">TRATAMIENTO</h1>
 
-        <div className="flex justify-center md:justify-end space-x-4 text-2xl md:text-3xl">
+        <div className="flex justify-center md:justify-end space-x-4 sm:space-x-6 text-xl sm:text-2xl md:text-3xl">
           <Link
             href="https://www.linkedin.com"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="LinkedIn"
           >
-            <FaLinkedin className="text-rose-600 hover:text-rose-400" />
+            <FaLinkedin className="text-rose-600 hover:text-rose-400 transition-colors" />
           </Link>
           <Link
             href="https://www.facebook.com"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Facebook"
           >
-            <FaFacebook className="text-rose-600 hover:text-rose-400" />
+            <FaFacebook className="text-rose-600 hover:text-rose-400 transition-colors" />
           </Link>
           <Link
             href="https://www.instagram.com"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Instagram"
           >
-            <FaInstagram className="text-rose-600 hover:text-rose-400" />
+            <FaInstagram className="text-rose-600 hover:text-rose-400 transition-colors" />
           </Link>
           <Link
             href="https://www.tiktok.com"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="TikTok"
           >
-            <FaTiktok className="text-rose-600 hover:text-rose-400" />
+            <FaTiktok className="text-rose-600 hover:text-rose-400 transition-colors" />
           </Link>
         </div>
       </div>
 
-      <div className="w-full  grid grid-cols-2 md:grid-cols-4 p-8">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 p-4 sm:p-6 lg:p-8 gap-6">
         <ul className="text-rose-500 text-sm font-medium space-y-2">
           <li className="hover:text-rose-800 transition-colors duration-200">Anisedad</li>
           <li className="hover:text-rose-800 transition-colors duration-200">Ataques de Panico</li>
@@ -100,14 +104,14 @@ export default function Footer() {
       </div>
       <hr className="my-6 border-t border-rose-300 w-11/12 mx-auto" />
 
-      <div className="flex gap-3 justify-center">
-         <Image src={"/ps.png"} alt="udd" width={150} height={100} className="md:hidden opacity-80 hover:opacity-100 transition"></Image>
-          <Image src={"/udd.png"} alt="udd" width={150} height={100} className="md:hidden opacity-80 hover:opacity-100 transition"></Image>
+      <div className="flex gap-3 sm:gap-4 justify-center items-center py-4 md:hidden">
+         <Image src="/ps.png" alt="Psicología" width={120} height={80} className="w-24 sm:w-32 h-auto opacity-80 hover:opacity-100 transition"></Image>
+          <Image src="/udd.png" alt="UDD" width={120} height={80} className="w-24 sm:w-32 h-auto opacity-80 hover:opacity-100 transition"></Image>
       </div>
 
 
-      <div className="bg-rose-500 py-3 flex justify-center items-center">
-        <p className="text-white text-xs tracking-wide">
+      <div className="bg-rose-500 py-3 sm:py-4 flex justify-center items-center">
+        <p className="text-white text-xs sm:text-sm tracking-wide px-4 text-center">
           © {new Date().getFullYear()} Medify. Todos los derechos reservados.
         </p>
       </div>

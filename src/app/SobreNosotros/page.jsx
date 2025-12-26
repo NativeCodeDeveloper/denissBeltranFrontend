@@ -60,97 +60,64 @@ export default async function SobreNosotros() {
 
     return (
         /** CONTENEDOR PRINCIPAL  */
-        <div className="">
-            <div
-                className="
-      grid grid-cols-1 md:grid-cols-3 
-      p-10"
-            >
+        <div className="w-full overflow-hidden">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-16">
+                {/** PRIMERA SECCIÓN - QUIÉNES SOMOS */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center mb-16">
+                    {/** IMAGEN */}
+                    <div className="flex justify-center lg:col-span-1 order-2 lg:order-1">
+                        <Image
+                            alt="Imagen de Denis Beltrán"
+                            src={"/denis.png"}
+                            width={500}
+                            height={300}
+                            className="rounded-2xl w-full max-w-sm lg:max-w-full h-auto shadow-lg"
+                        />
+                    </div>
 
+                    {/** CONTENIDO TEXTO */}
+                    <div className="lg:col-span-2 order-1 lg:order-2">
+                        {quienesSomos && (
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-rose-600 mb-6">
+                                {quienesSomos.titulo}
+                            </h1>
+                        )}
 
-                {/**--------------------------------- */}
-                {/** CONTENEDOR DE PRIMERA IMAGEN */}
-                {/**--------------------------------- */}
-
-                <div className="flex justify-center p-8 col-span-1 ml-20 ">
-                    <Image
-                        alt="Imagen1"
-                        src={"/denis.png"}
-                        width={500}
-                        height={300}
-                        className="rounded-2xl hidden md:block"
-                    />
+                        {textoQuienesSomos && (
+                            <p className="text-base sm:text-lg lg:text-xl text-justify leading-relaxed">
+                                {textoQuienesSomos.contenido}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
+                {/** SEGUNDA SECCIÓN - QUÉ HACEMOS */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    {/** CONTENIDO TEXTO */}
+                    <div className="order-1">
+                        {quehacemos && (
+                            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-rose-600 mb-6">
+                                {quehacemos.titulo}
+                            </h1>
+                        )}
 
-                {/**--------------------------------- */}
-                {/** CONTENEDOR DE PRIMER TEXTO */}
-                {/**--------------------------------- */}
-                <div
-                    className="
-        col-span-1 md:col-span-2"
-                >
-                    <br/>
+                        {textoQueHacemos && (
+                            <p className="text-base sm:text-lg lg:text-xl text-justify leading-relaxed">
+                                {textoQueHacemos.contenido}
+                            </p>
+                        )}
+                    </div>
 
-                    {/** Quienes somos Titulo */}
-                    {quienesSomos && (
-                        <h1 className="text-3xl font-bold md:text-5xl flex md:justify-start md:mr-40 text-rose-600">
-                            {quienesSomos.titulo}
-                        </h1>
-                    )}
-                    <br/>
-
-                    {/**Texto Quienes Somos */}
-                    {textoQuienesSomos && (
-                        <p className="text-2xl text-justify md:pr-10 md:mr-12">
-                            {textoQuienesSomos.contenido}
-                        </p>
-                    )}
-                    <br/>
-                </div>
-            </div>
-
-
-            {/**--------------------------------- */}
-            {/** CONTENEDOR DE SEGUNDO TEXTO */}
-            {/**--------------------------------- */}
-            <div
-                className="
-      grid grid-cols-1 md:grid-cols-2 md:p-10"
-            >
-                <div
-                    className="
-        col-span-1 "
-                >
-                    {/** Que Hacemos **/}
-                    {quehacemos && (
-                        <h1
-                            className="text-3xl ml-10 md:ml-28 font-bold md:text-5xl flex   text-rose-600"
-                        >
-                            {quehacemos.titulo}
-                        </h1>
-                    )}
-                    <br/>
-
-                    {/**Texto Que Hacemos */}
-                    {textoQueHacemos && (
-                        <p
-                            className="text-2xl text-justify
-            pl-10  pr-8 md:pl-28"
-                        >
-                            {textoQueHacemos.contenido}
-                        </p>
-                    )}
-                    <br/>
-                </div>
-                <div className="md:pr-10 mr-0">
-                    <Image
-                        alt="Imagen1"
-                        src={"/image1.png"}
-                        width={400}
-                        height={400}
-                        className="rounded-2xl hidden md:block ml-30"
-                    />
+                    {/** IMAGEN */}
+                    <div className="flex justify-center order-2">
+                        <Image
+                            alt="Imagen de servicios"
+                            src={"/image1.png"}
+                            width={400}
+                            height={400}
+                            className="rounded-2xl w-full max-w-sm lg:max-w-full h-auto shadow-lg"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

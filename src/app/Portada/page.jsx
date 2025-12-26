@@ -76,19 +76,19 @@ export default async function Portada() {
                     <div className="max-w-5xl mx-auto">
 
                         {/* Centered Content */}
-                        <div className="text-center space-y-8 lg:space-y-10">
+                        <div className="text-center space-y-6 sm:space-y-8 lg:space-y-10">
                             {/* Badge */}
                             <div
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-rose-200/50">
+                                className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-rose-200/50">
                                 <span className="w-2.5 h-2.5 bg-rose-500 rounded-full animate-pulse"></span>
-                                <span className={`${lexend.className} text-sm font-medium text-rose-700`}>
+                                <span className={`${lexend.className} text-xs sm:text-sm font-medium text-rose-700`}>
                                     Atención Psicológica Profesional
                                 </span>
                             </div>
 
                             {/* Main Title */}
                             {tituloPrincipal && (
-                                <h1 className={`${playfair.className} text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight px-4`}>
+                                <h1 className={`${playfair.className} text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight px-4`}>
                                     <span
                                         className="bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
                                         {tituloPrincipal.titulo}
@@ -98,29 +98,29 @@ export default async function Portada() {
 
                             {/* Subtitle */}
                             {subtitulo && (
-                                <p className={`${lexend.className} text-xl sm:text-2xl lg:text-3xl text-gray-700 font-light max-w-3xl mx-auto leading-relaxed px-4`}>
+                                <p className={`${lexend.className} text-base sm:text-lg md:text-xl lg:text-2xl text-gray-700 font-light max-w-3xl mx-auto leading-relaxed px-4`}>
                                     {subtitulo.titulo}
                                 </p>
                             )}
 
                             {/* Special Offer Banner */}
-                            <div className="max-w-2xl mx-auto">
+                            <div className="max-w-2xl mx-auto px-4">
                                 <div
-                                    className="bg-gradient-to-r from-rose-100 via-pink-100 to-purple-100 rounded-3xl p-6 shadow-lg border-2 border-rose-200/50 backdrop-blur-sm">
-                                    <p className={`${sourGummy.className} text-lg sm:text-xl text-rose-700 font-medium`}>
+                                    className="bg-gradient-to-r from-rose-100 via-pink-100 to-purple-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-lg border-2 border-rose-200/50 backdrop-blur-sm">
+                                    <p className={`${sourGummy.className} text-base sm:text-lg lg:text-xl text-rose-700 font-medium`}>
                                         ✨ Regálate este momento para ti… primera sesión con precio especial
                                     </p>
                                 </div>
                             </div>
 
                             {/* CTA Buttons */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-4 sm:pt-6 px-4">
                                 <Link href={"/AgendaProceso"} className="w-full sm:w-auto">
                                     <button
-                                        className="w-full sm:w-auto group relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-10 py-5 text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:shadow-rose-500/50 hover:scale-105">
+                                        className="w-full sm:w-auto group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 px-6 sm:px-10 py-4 sm:py-5 text-base sm:text-lg font-semibold text-white shadow-2xl transition-all duration-300 hover:shadow-rose-500/50 hover:scale-105">
                                         <span className="relative z-10 flex items-center justify-center gap-2">
                                             <span className={lexend.className}>Agendar mi Sesión</span>
-                                            <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"
                                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                                                       d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -132,14 +132,14 @@ export default async function Portada() {
                                 </Link>
                                 <Link href={"/Precios"} className="w-full sm:w-auto">
                                     <button
-                                        className="w-full sm:w-auto rounded-2xl border-2 border-rose-300 bg-white/90 backdrop-blur-sm px-10 py-5 text-lg font-semibold text-rose-600 shadow-xl transition-all duration-300 hover:bg-rose-50 hover:border-rose-400 hover:shadow-2xl hover:scale-105">
+                                        className="w-full sm:w-auto rounded-xl sm:rounded-2xl border-2 border-rose-300 bg-white/90 backdrop-blur-sm px-6 sm:px-10 py-4 sm:py-5 text-base sm:text-lg font-semibold text-rose-600 shadow-xl transition-all duration-300 hover:bg-rose-50 hover:border-rose-400 hover:shadow-2xl hover:scale-105">
                                         <span className={lexend.className}>Ver Precios</span>
                                     </button>
                                 </Link>
                             </div>
 
                             {/* Features Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-12 max-w-4xl mx-auto">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-8 sm:pt-12 max-w-4xl mx-auto px-4">
                                 <div
                                     className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-rose-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                                     <div

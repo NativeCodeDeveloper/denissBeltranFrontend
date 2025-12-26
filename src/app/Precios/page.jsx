@@ -54,21 +54,21 @@ export default function Pricing() {
   return (
     <section className="relative isolate px-6 py-24 sm:py-32 lg:px-8">
       {/* Título */}
-      <div className="mx-auto max-w-4xl text-center">
-        <h2 className="text-4xl font-bold text-rose-600">
+      <div className="mx-auto max-w-4xl text-center px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-rose-600">
           <strong>Terapia a tu ritmo, desde donde estés.</strong>
         </h2>
-        <p className="mt-2 text-5xl font-semibold tracking-tight text-balance text-gray-900 sm:text-6xl">
+        <p className="mt-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-balance text-gray-900">
           Atención profesional, confidencial y con enfoque clínico femenino.
         </p>
       </div>
-      <p className="mx-auto mt-6 max-w-2xl text-justify text-lg font-medium text-pretty text-gray-600 sm:text-xl/8">
+      <p className="mx-auto mt-6 max-w-2xl text-justify text-base sm:text-lg md:text-xl font-medium text-pretty text-gray-600 px-4">
         Acompañamiento especializado para ansiedad, estrés, autoestima, relaciones y etapas del ciclo vital femenino (PMS/PMDD, embarazo y posparto si aplica). Modalidad online, segura y confidencial.
       </p>
 
-      <div id="precios" className="mt-32">
+      <div id="precios" className="mt-16 sm:mt-24 lg:mt-32 px-4">
         {/* Planes */}
-        <div className="mx-auto mt-16 grid max-w-4xl grid-cols-1 gap-y-6 sm:mt-20 md:grid-cols-2 md:gap-x-8 justify-center">
+        <div className="mx-auto mt-8 sm:mt-12 lg:mt-16 grid max-w-5xl grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 justify-center">
           {plans.map((p) => (
             <div
               key={p.id}
@@ -84,13 +84,13 @@ export default function Pricing() {
                 </span>
               )}
               <div className="flex-1">
-                <h3 id={`tier-${p.id}`} className={`text-base/7 font-semibold ${p.accent}`}>
+                <h3 id={`tier-${p.id}`} className={`text-sm sm:text-base font-semibold ${p.accent}`}>
                   {/* Título del plan - editable */}
                   {p.title}
                 </h3>
                 <p className="mt-4 flex items-baseline gap-x-2">
                   <span
-                    className={`text-5xl font-semibold tracking-tight ${
+                    className={`text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tight ${
                       p.dark ? "text-white" : "text-gray-900"
                     }`}
                   >
@@ -98,7 +98,7 @@ export default function Pricing() {
                     {p.price}
                   </span>
                   <span
-                    className={`text-sm tracking-wide ${
+                    className={`text-xs sm:text-sm tracking-wide ${
                       p.dark ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
@@ -107,7 +107,7 @@ export default function Pricing() {
                   </span>
                 </p>
                 <p
-                  className={`mt-6 text-base/7 text-justify ${
+                  className={`mt-6 text-sm sm:text-base leading-relaxed text-justify ${
                     p.dark ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
@@ -118,7 +118,7 @@ export default function Pricing() {
                 {/* Lista de features */}
                 <ul
                   role="list"
-                  className={`mt-8 space-y-3 text-sm/6 ${p.li} sm:mt-10`}
+                  className={`mt-6 sm:mt-8 space-y-2 sm:space-y-3 text-xs sm:text-sm ${p.li}`}
                 >
                   {/* Lista de características - editar cada item en el array feats */}
                   {p.feats.map((f, i) => (

@@ -1,7 +1,7 @@
 import {Geist, Geist_Mono} from "next/font/google";
 
 import "./globals.css";
-import {ClerkProvider} from '@clerk/nextjs'
+// import {ClerkProvider} from '@clerk/nextjs'
 import Script from "next/script";
 import AgendaProvider from "@/ContextosApp/AgendaContext";
 
@@ -93,7 +93,7 @@ export const viewport = {
 
 export default function RootLayout({children}) {
     return (
-        <ClerkProvider>
+        // <ClerkProvider>
             <html lang="es" dir="ltr">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
             <AgendaProvider>
@@ -101,6 +101,6 @@ export default function RootLayout({children}) {
             </AgendaProvider>
             </body>
             </html>
-        </ClerkProvider>
+        // </ClerkProvider>
     );
 }
